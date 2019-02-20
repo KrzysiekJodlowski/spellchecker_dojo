@@ -56,7 +56,7 @@ public class SpellCheck {
         }
         try {
             long l = System.currentTimeMillis();
-            new Checker().check(string, string2, (StringHasher)lousyStringHasher, printStream);
+            new Checker().check(string, string2, lousyStringHasher, printStream);   // Removed casting to an interface
             long l2 = System.currentTimeMillis();
             if (bl) {
                 System.out.println("Checker ran in " + (l2 - l) + "ms");
