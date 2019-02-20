@@ -38,6 +38,10 @@ public class SpellCheck {
                 lousyStringHasher = new BetterStringHasher();
                 continue;
             }
+            if (arrstring[i].equals("-custom")) {
+                lousyStringHasher = new CustomStringHasher();
+                continue;
+            }
             if (arrstring[i].equals("-quiet")) {
                 printStream = new PrintStream(new NullOutputStream());
                 bl = true;
