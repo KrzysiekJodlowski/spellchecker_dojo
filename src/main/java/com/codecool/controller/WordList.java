@@ -7,10 +7,12 @@ package com.codecool.controller;/*
  */
 
 import com.codecool.controller.tools.StringHasher;
+import com.codecool.data_structures.HashTable;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+
 
 public class WordList {
     private final HashTable hashTable;

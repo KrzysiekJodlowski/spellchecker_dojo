@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+
 public class Checker {
     public void check(String string, String string2, StringHasher stringHasher, PrintStream printStream) throws IOException {
         WordList wordList = new WordList(string2, stringHasher);
