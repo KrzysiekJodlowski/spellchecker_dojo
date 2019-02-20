@@ -3,6 +3,7 @@ package com.codecool.controller;
 /*
  * Decompiled with CFR 0.139.
  */
+
 public class WordLineReader {
     private final String line;
     private int currentChar;

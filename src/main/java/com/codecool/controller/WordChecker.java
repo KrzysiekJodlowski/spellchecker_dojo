@@ -21,6 +21,10 @@ import java.util.ArrayList;
 
 public class WordChecker
 {
+	private final char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUWYZ".toCharArray();
+	private final int INDEX_ZERO = 0;
+	private final int INDEX_ONE = 1;
+	private WordList wordList;
 	/**
    * Constructor that initializes a new WordChecker with a given WordList.
    *
@@ -29,7 +33,7 @@ public class WordChecker
    */
 	public WordChecker(WordList wordList)
 	{
-
+		this.wordList = wordList;
 	}
 	
 
@@ -42,7 +46,7 @@ public class WordChecker
    */
 	public boolean wordExists(String word)
 	{
-		return false;
+		return this.wordList.lookup(word.toUpperCase());
 	}
 
 
@@ -56,6 +60,137 @@ public class WordChecker
    */
 	public ArrayList getSuggestions(String word)
 	{
-		return new ArrayList();
+		ArrayList suggestions = new ArrayList();
+		word = word.toUpperCase().replaceAll("[^a-zA-Z0-9]", "");
+		char[] wordArray = word.toCharArray();
+
+		checkWordWhenSwappingLetters(wordArray, suggestions);
+		checkWordWhenInsertingLetters(wordArray, suggestions);
+		checkWordWhenDeletingLetters(wordArray, suggestions);
+		checkWordWhenReplacingLetters(wordArray, suggestions);
+		checkWordWhenSplittingInTwo(wordArray, suggestions);
+
+		return suggestions;
+	}
+
+	private void checkWordWhenSwappingLetters(char[] wordArray, ArrayList suggestions) {
+		int wordArrayLength = wordArray.length;
+
+		for (int index = this.INDEX_ZERO; index < wordArrayLength - this.INDEX_ONE; index++) {
+
+			char[] tempWordArray = wordArray.clone();
+
+			char tempChar = tempWordArray[index + this.INDEX_ONE];
+			tempWordArray[index + this.INDEX_ONE] = tempWordArray[index];
+			tempWordArray[index] = tempChar;
+
+			String tempWord = String.valueOf(tempWordArray);
+			addWordToSuggestionsWhenNotPresent(suggestions, tempWord);
+		}
+	}
+
+	private void checkWordWhenInsertingLetters(char[] wordArray, ArrayList suggestions) {
+		int wordArrayLength = wordArray.length;
+		int extendedWordArrayLength = wordArrayLength + this.INDEX_ONE;
+
+		for (int index = this.INDEX_ZERO; index < extendedWordArrayLength; index++) {
+			for (int letterindex = this.INDEX_ZERO; letterindex < this.ALPHABET.length; letterindex++) {
+
+				char[] tempWordArray = new char[extendedWordArrayLength];
+
+				if (index == this.INDEX_ZERO) {
+					tempWordArray[this.INDEX_ZERO] = this.ALPHABET[letterindex];
+					System.arraycopy(wordArray, this.INDEX_ZERO, tempWordArray, this.INDEX_ONE, wordArrayLength);
+
+				} else if (index == extendedWordArrayLength - this.INDEX_ONE) {
+					tempWordArray[index] = this.ALPHABET[letterindex];
+					System.arraycopy(wordArray, this.INDEX_ZERO, tempWordArray, this.INDEX_ZERO, wordArrayLength);
+
+				} else {
+					System.arraycopy(wordArray, this.INDEX_ZERO, tempWordArray, this.INDEX_ZERO, index);
+					System.arraycopy(wordArray, index, tempWordArray, index + this.INDEX_ONE, wordArrayLength - index);
+					tempWordArray[index] = this.ALPHABET[letterindex];
+				}
+
+				String tempWord = String.valueOf(tempWordArray);
+				addWordToSuggestionsWhenNotPresent(suggestions, tempWord);
+			}
+		}
+	}
+
+	private void checkWordWhenDeletingLetters(char[] wordArray, ArrayList suggestions) {
+		int wordArrayLength = wordArray.length;
+		int narrowedWordArrayLength = wordArrayLength - this.INDEX_ONE;
+
+		for (int index = this.INDEX_ZERO; index < wordArrayLength; index++) {
+
+			char[] tempWordArray = new char[narrowedWordArrayLength];
+			tempWordArray = copyWordArrayWithoutChar(wordArray, tempWordArray, wordArrayLength, index);
+
+			String tempWord = String.valueOf(tempWordArray);
+			addWordToSuggestionsWhenNotPresent(suggestions, tempWord);
+		}
+	}
+
+	private void checkWordWhenReplacingLetters(char[] wordArray, ArrayList suggestions) {
+		int wordArrayLength = wordArray.length;
+
+		for (int index = this.INDEX_ZERO; index < wordArrayLength; index++) {
+			for (int letterindex = this.INDEX_ZERO; letterindex < this.ALPHABET.length; letterindex++) {
+
+				char[] tempWordArray = new char[wordArrayLength];
+				tempWordArray = copyWordArrayWithoutChar(wordArray, tempWordArray, wordArrayLength, index);
+				tempWordArray[index] = this.ALPHABET[letterindex];
+
+				String tempWord = String.valueOf(tempWordArray);
+				addWordToSuggestionsWhenNotPresent(suggestions, tempWord);
+			}
+		}
+	}
+
+	private void checkWordWhenSplittingInTwo(char[] wordArray, ArrayList suggestions) {
+		int narrowedWordArrayLength = wordArray.length - this.INDEX_ONE;
+
+		for (int index = this.INDEX_ZERO; index < narrowedWordArrayLength; index++) {
+
+			char[] tempFirstWordArray = new char[index + this.INDEX_ONE];
+			char[] tempSecondWordArray = new char[narrowedWordArrayLength - index];
+
+			System.arraycopy(wordArray, this.INDEX_ZERO, tempFirstWordArray, this.INDEX_ZERO, index + this.INDEX_ONE);
+			System.arraycopy(wordArray, index + this.INDEX_ONE, tempSecondWordArray, this.INDEX_ZERO, narrowedWordArrayLength - index);
+
+			String tempFirstWord = String.valueOf(tempFirstWordArray);
+			String tempSecondWord = String.valueOf(tempSecondWordArray);
+
+			if(this.wordList.lookup(tempFirstWord) && this.wordList.lookup(tempSecondWord)) {
+				String likelyASuggestion = tempFirstWord + " " + tempSecondWord;
+				suggestions.add(likelyASuggestion);
+			}
+		}
+	}
+
+	private void addWordToSuggestionsWhenNotPresent(ArrayList suggestions, String word) {
+		if (this.wordList.lookup(word)) {
+			if (!suggestions.contains(word)) {
+				suggestions.add(word);
+			}
+		}
+	}
+
+	private char[] copyWordArrayWithoutChar(char[] wordArray, char[] tempWordArray, int wordArrayLength, int index) {
+		int narrowedWordArrayLength = wordArrayLength - this.INDEX_ONE;
+
+		if (index == this.INDEX_ZERO) {
+			System.arraycopy(wordArray, this.INDEX_ONE, tempWordArray, this.INDEX_ZERO, narrowedWordArrayLength);
+
+		} else if (index == wordArrayLength) {
+			System.arraycopy(wordArray, this.INDEX_ZERO, tempWordArray, this.INDEX_ZERO, narrowedWordArrayLength);
+
+		} else {
+			System.arraycopy(wordArray, this.INDEX_ZERO, tempWordArray, this.INDEX_ZERO, index);
+			System.arraycopy(wordArray, index, tempWordArray, index - this.INDEX_ONE, wordArrayLength - index);
+		}
+
+		return tempWordArray;
 	}
 }

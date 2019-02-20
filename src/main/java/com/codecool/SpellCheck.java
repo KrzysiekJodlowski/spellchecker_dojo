@@ -13,6 +13,7 @@ import com.codecool.controller.tools.*;
 import java.io.IOException;
 import java.io.PrintStream;
 
+
 public class SpellCheck {
     public static void main(String[] arrstring) {
         if (arrstring.length == 0) {

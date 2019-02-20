@@ -3,6 +3,7 @@ package com.codecool.controller.tools;/*
  */
 import java.io.OutputStream;
 
+
 public class NullOutputStream
 extends OutputStream {
     public void close() {
