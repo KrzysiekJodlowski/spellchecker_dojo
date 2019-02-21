@@ -34,7 +34,6 @@ public class HashTable
 		this.wordsTable = new SinglyLinkedList[this.tableSize];
 	}
 
-
 	/**
    * Takes a string and adds it to the hash table, if it's not already
    * in the hash table.  If it is, this method has no effect.
@@ -117,6 +116,7 @@ public class HashTable
 	 */
 
 	private int getHash(String s) {
-		return hasher.hash(s) % this.tableSize;
+		return Math.floorMod(hasher.hash(s), this.tableSize);
+
 	}
 }
