@@ -111,10 +111,6 @@ public class HashTable
 		}
 	}
 
-	/*
-	 *	 Need to be upgraded -> degenerate works too slow and better throws exception
-	 */
-
 	private int getHash(String s) {
 		return Math.floorMod(hasher.hash(s), this.tableSize);
 
