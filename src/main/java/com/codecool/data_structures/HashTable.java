@@ -17,7 +17,7 @@ public class HashTable
 {
 	private int tableSize;
 	private StringHasher hasher;
-	private SinglyLinkedList<HashNode>[] wordsTable;
+	private SinglyLinkedList<String>[] wordsTable;
 
 	/**
    * The constructor is given a table size (i.e. how big to make the array)
@@ -34,7 +34,6 @@ public class HashTable
 		this.wordsTable = new SinglyLinkedList[this.tableSize];
 	}
 
-
 	/**
    * Takes a string and adds it to the hash table, if it's not already
    * in the hash table.  If it is, this method has no effect.
@@ -43,28 +42,23 @@ public class HashTable
    */
 	public void add(String s)
 	{
-
-		int generatedKey = hasher.hash(s);
+		int generatedKey = getHash(s);
 
 		if (wordsTable[generatedKey] != null) {
-			SinglyLinkedList<HashNode> curentList = wordsTable[generatedKey];
+			SinglyLinkedList<String> curentList = wordsTable[generatedKey];
 
 			for (int listIndex = 0; listIndex < curentList.size(); listIndex++) {
 
-				if (curentList.get(listIndex).getValue().equals(s)) {
+				if (curentList.get(listIndex).equals(s)) {
 					return;
 				}
-				HashNode newNode = new HashNode<>(generatedKey, s);
-				curentList.add(newNode);
-				resizeIfNeeded();
+				curentList.add(s);
 				return;
 			}
 
 		} else {
 			wordsTable[generatedKey] = new SinglyLinkedList<>();
-			HashNode newNode = new HashNode<>(generatedKey, s);
-			wordsTable[generatedKey].add(newNode);
-			resizeIfNeeded();
+			wordsTable[generatedKey].add(s);
 		}
 	}
 	
@@ -77,13 +71,14 @@ public class HashTable
   */
 	public boolean lookup(String s)
 	{
-		int generatedKey = hasher.hash(s);
+		int generatedKey = getHash(s);
+
 		if (wordsTable[generatedKey] != null) {
-			SinglyLinkedList<HashNode> curentList = wordsTable[generatedKey];
+			SinglyLinkedList<String> curentList = wordsTable[generatedKey];
 
 			for (int listIndex = 0; listIndex < curentList.size(); listIndex++) {
 
-				if (curentList.get(listIndex).getValue().equals(s)) {
+				if (curentList.get(listIndex).equals(s)) {
 					return true;
 				}
 			}
@@ -101,13 +96,14 @@ public class HashTable
   */
 	public void remove(String s)
 	{
-		int generatedKey = hasher.hash(s);
+		int generatedKey = getHash(s);
+
 		if (wordsTable[generatedKey] != null) {
-			SinglyLinkedList<HashNode> curentList = wordsTable[generatedKey];
+			SinglyLinkedList<String> curentList = wordsTable[generatedKey];
 
 			for (int listIndex = 0; listIndex < curentList.size(); listIndex++) {
 
-				if (curentList.get(listIndex).getValue().equals(s)) {
+				if (curentList.get(listIndex).equals(s)) {
 					curentList.remove(listIndex);
 				}
 			}
@@ -115,48 +111,8 @@ public class HashTable
 		}
 	}
 
-	/*
-	 *	 Need to be upgraded to use "better" hashing
-	 */
+	private int getHash(String s) {
+		return Math.floorMod(hasher.hash(s), this.tableSize);
 
-	private void resizeIfNeeded () {
-		int currentSize = this.size();
-		int doubleHashMapSize = this.tableSize * 2;
-
-		if (currentSize >= doubleHashMapSize) {
-			recreateHashMapWithNewSize(doubleHashMapSize);
-		}
-	}
-
-	private int size() {
-		int currentSize = 0;
-
-		for (SinglyLinkedList<HashNode> currentList : this.wordsTable) {
-			if (currentList != null) {
-				for (int index = 0; index < currentList.size(); index++) {
-					currentSize++;
-				}
-			}
-		}
-		return currentSize;
-	}
-
-	private void recreateHashMapWithNewSize(int newHashMapSize){
-		SinglyLinkedList<String> storedWords = new SinglyLinkedList<>();
-
-		for (int index = 0; index < this.wordsTable.length; index++) {
-			if (this.wordsTable[index] != null) {
-				for (int innerIndex = 0; innerIndex < this.wordsTable[index].size(); innerIndex++) {
-					storedWords.add((String) this.wordsTable[index].get(innerIndex).getValue());
-				}
-			}
-		}
-
-		this.wordsTable = (SinglyLinkedList<HashNode>[]) new SinglyLinkedList<?>[newHashMapSize];
-		this.tableSize = newHashMapSize;
-
-		for (int index = 0; index < storedWords.size(); index++) {
-			this.add(storedWords.get(index));
-		}
 	}
 }
